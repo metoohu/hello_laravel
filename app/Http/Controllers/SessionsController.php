@@ -25,8 +25,17 @@ class SessionsController extends Controller
         ]);
 
         if(Auth::attempt($credentials,$request->has('remember'))){
-            session()->flash('success','欢迎回来！');
-            $fallback = route('users.show',[Auth::user()]);
+
+
+            if(Auth::user()->activated) {
+                session()->flash('success', '欢迎回来！');
+                $fallback = route('users.show', Auth::user());
+                return redirect()->intended($fallback);
+            } else {
+                Auth::logout();
+                session()->flash('warning', '你的账号未激活，请检查邮箱中的注册邮件进行激活。');
+                return redirect('/');
+            }
             //当一个未登录的用户尝试访问自己的资料编辑页面时，
             //将会自动跳转到登录页面，这时候如果用户再进行登录，
             //则会重定向到其个人中心页面上，这种方式的用户体验并不好。
@@ -35,7 +44,6 @@ class SessionsController extends Controller
             //该方法可将页面重定向到上一次请求尝试访问的页面上，
             //并接收一个默认跳转地址参数，当上一次请求记录为空时，
             //跳转到默认地址上。
-            return redirect()->intended($fallback);
             //登录成功
         }else{
             //登录失败
