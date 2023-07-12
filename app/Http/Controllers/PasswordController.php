@@ -12,6 +12,25 @@ use Carbon\Carbon;
 
 class PasswordController extends Controller
 {
+    public function __construct(){
+        //做了限流，一分钟内只能允许访问两次。
+        $this->middleware('throttle:2,1',[
+            'only' => ['showLinkRequestForm']
+        ]);
+        //发送密码重置邮件，限流规则为 —— 10 分钟内只能尝试 3 次：
+        $this->middleware('throttle:3,10', [
+            'only' => ['sendResetLinkEmail']
+        ]);
+        // 登录限流 10 分钟十次
+        $this->middleware('throttle:10,10', [
+            'only' => ['store']
+        ]);
+
+         // 注册限流 一个小时内只能提交 10 次请求；
+         $this->middleware('throttle:10,60', [
+            'only' => ['store']
+        ]);
+    }
     public function showLinkRequestForm()
     {
         return view('auth.passwords.email');
