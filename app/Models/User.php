@@ -65,4 +65,17 @@ class User extends Authenticatable
             $user->activation_token = str::random(10);
         });
     }
+    /**
+     * 现在网站主页已经拥有微博的发布表单和当前登录用户的个人信息展示了，
+     * 接下来让我们接着完善该页面，
+     * 在微博发布表单下面增加一个局部视图用于展示微博列表。在开始之前，
+     * 我们需要在用户模型中定义一个 feed 方法，
+     * 该方法将当前用户发布过的所有微博从数据库中取出，
+     * 并根据创建时间来倒序排序。在后面我们为用户增加关注人的功能之后，
+     * 将使用该方法来获取当前用户关注的人发布过的所有微博动态。
+     * 现在的 feed 方法定义如下：
+     */
+    public function feed(){
+        return $this->statuses()->orderBy('created_at','desc');
+    }
 }
