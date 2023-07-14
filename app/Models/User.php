@@ -86,7 +86,11 @@ class User extends Authenticatable
      * 现在的 feed 方法定义如下：
      */
     public function feed(){
-        return $this->statuses()->orderBy('created_at','desc');
+        $user_ids = $this->followings->pluck('id')->toArray();
+        array_push($user_ids, $this->id);
+        return Status::whereIn('user_id', $user_ids)
+                              ->with('user')
+                              ->orderBy('created_at', 'desc');
     }
     /**
      * 借助这两个方法可以让我们非常简单的实现用户的「关注」和「取消关注」的相关逻辑，
